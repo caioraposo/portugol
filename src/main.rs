@@ -6,9 +6,10 @@ fn main() {
 
     let mut lexer = Lexer::new(input.into());
 
-    while let token = lexer.next_token() {
+    loop {
+        let token = lexer.next_token();
         println!("{}", token);
+        // Exit if End of File (EOF) is reached
         if token.token == Token::Eof { break; }
-        println!();
     }
 }
