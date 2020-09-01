@@ -103,23 +103,31 @@ impl Lexer {
                 tok = Token::Rbracket;
             }
             '"' => {
+                let col = self.column;
                 tok = Token::String(self.read_string().to_string());
+                self.read_char();
+                return TokenWrapper::new(tok, self.line, col);
             }
             '\u{0}' => {
                 tok = Token::Eof;
             }
             _ => {
                 if is_letter(self.ch) {
+                    let col = self.column;
                     let ident = self.read_identifier();
                     tok = token::lookup_ident(ident);
+                    return TokenWrapper::new(tok, self.line, col);
                 } else if is_digit(self.ch) {
                     let integer_part = self.read_number().to_string();
+                    self.column = integer_part.len();
                     if self.ch == '.' && is_digit(self.peek_char()) {
                         self.read_char();
                         let fractional_part = self.read_number();
                         tok = Token::Float(format!("{}.{}", integer_part, fractional_part));
+                        return TokenWrapper::new(tok, self.line, self.column);
                     } else {
                         tok = Token::Int(integer_part);
+                        return TokenWrapper::new(tok, self.line, self.column);
                     }
                 } else {
                     tok = Token::Illegal
@@ -128,7 +136,7 @@ impl Lexer {
         }
 
         self.read_char();
-        TokenWrapper::new(tok, self.line, self.column)
+        TokenWrapper::new(tok, self.line, self.column - 1)
     }
 
     fn read_identifier(&mut self) -> &str {
@@ -169,7 +177,7 @@ impl Lexer {
         while is_whitespace(self.ch) {
             if self.ch == '\n' {
                 self.line += 1;
-                self.column = 1;
+                self.column = 0;
             }
             self.read_char();
         }
@@ -181,6 +189,7 @@ impl Lexer {
         self.position += if self.ch == '\u{0}' {
             0
         } else {
+            self.column += 1;
             self.ch.len_utf8()
         };
         self.ch = self.chars.next().unwrap_or('\u{0}');
