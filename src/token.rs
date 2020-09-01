@@ -3,14 +3,41 @@ use std::fmt;
 #[derive(Clone, Debug, PartialEq)]
 pub struct TokenWrapper {
     pub token: Token,
+    pub category: Category,
     line: usize,
     column: usize,
 }
 
 impl TokenWrapper {
     pub fn new(token: Token, line: usize, column: usize) -> TokenWrapper {
-        TokenWrapper { token, line, column }
+        let category = match &token {
+            Token::Assign | Token::Plus | Token::Minus |
+            Token::Bang | Token::Asterisk | Token::Slash |
+            Token::Lt | Token::Gt | Token::Eq | Token::NotEq => Category::Operator,
+
+            Token::Integer | Token::Function | Token::True |
+            Token::False | Token::If | Token::Else |
+            Token::Return | Token::Print | Token::Program => Category::Keyword,
+
+            Token::String(_) => Category::String,
+            Token::Ident(_) => Category::Identifier,
+            Token::Int(_) | Token::Float(_) => Category::Number,
+
+            _ => Category::Others,
+
+        };
+        TokenWrapper { token, category, line, column }
     }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Category {
+    Keyword,
+    Identifier,
+    Others,
+    Operator,
+    Number,
+    String,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -62,7 +89,8 @@ pub enum Token {
 
 impl fmt::Display for TokenWrapper {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} | linha: {} coluna: {}", self.token, self.line, self.column)
+        write!(f, "[{:?}, \"{}\", {}, {}]",
+            self.category, self.token, self.line, self.column)
     }
 }
 
