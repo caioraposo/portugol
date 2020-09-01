@@ -57,6 +57,7 @@ pub enum Token {
     Else,
     Return,
     Print,
+    Program,
 }
 
 impl fmt::Display for TokenWrapper {
@@ -109,6 +110,7 @@ impl fmt::Display for Token {
             Token::Else => write!(f, "senao"),
             Token::Return => write!(f, "retorne"),
             Token::Print => write!(f, "imprima"),
+            Token::Program => write!(f, "prog"),
         }
     }
 }
@@ -119,6 +121,7 @@ pub fn lookup_ident(ident: &str) -> Token {
 
 fn keyword_to_token(keyword: &str) -> Option<Token> {
     match keyword {
+        "prog" => Some(Token::Program),
         "funcao" => Some(Token::Function),
         "int" => Some(Token::Integer),
         "VERDADEIRO" => Some(Token::True),
