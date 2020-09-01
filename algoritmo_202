@@ -1,0 +1,13 @@
+prog para29
+    int i, num;
+    imprima "\nEntre com um numero maior do que 15: ";
+    leia num;
+    se(num>=15)
+    {
+        para( i <- 15 ; i <= num; i <- i + 15 )
+        { imprima i, " "; }
+    }
+    senao
+    { imprima "\n NAO EXISTE";}
+    imprima "\n";
+fimprog
