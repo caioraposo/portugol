@@ -11,7 +11,7 @@ pub struct TokenWrapper {
 impl TokenWrapper {
     pub fn new(token: Token, line: usize, column: usize) -> TokenWrapper {
         let category = match &token {
-            Token::Assign | Token::Plus | Token::Minus |
+            Token::Assign | Token::Plus | Token::Minus | Token::Arrow |
             Token::Bang | Token::Asterisk | Token::Slash |
             Token::Lt | Token::Gt | Token::Eq | Token::NotEq => Category::Operator,
 
@@ -58,6 +58,7 @@ pub enum Token {
     Bang,
     Asterisk,
     Slash,
+    Arrow,
 
     Lt,
     Gt,
@@ -107,6 +108,7 @@ impl fmt::Display for Token {
             Token::String(s) => write!(f, "\"{}\"", s),
 
             Token::Assign => write!(f, "="),
+            Token::Arrow => write!(f, "<-"),
             Token::Plus => write!(f, "+"),
             Token::Minus => write!(f, "-"),
             Token::Bang => write!(f, "!"),

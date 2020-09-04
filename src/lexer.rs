@@ -85,7 +85,12 @@ impl Lexer {
                 tok = Token::Slash;
             }
             '<' => {
-                tok = Token::Lt;
+                if self.peek_char() == '-' {
+                    self.read_char();
+                    tok = Token::Arrow;
+                } else {
+                    tok = Token::Lt;
+                }
             }
             '>' => {
                 tok = Token::Gt;
@@ -112,29 +117,31 @@ impl Lexer {
                 tok = Token::Eof;
             }
             _ => {
+                // Get the column of the first character of the sequency
+                let col = self.column;
                 if is_letter(self.ch) {
-                    let col = self.column;
                     let ident = self.read_identifier();
                     tok = token::lookup_ident(ident);
-                    return TokenWrapper::new(tok, self.line, col);
                 } else if is_digit(self.ch) {
+                    // Accepts 1 | 1. | 1.0 as numbers
                     let integer_part = self.read_number().to_string();
-                    self.column = integer_part.len();
-                    if self.ch == '.' && is_digit(self.peek_char()) {
+                    if self.ch == '.' {
                         self.read_char();
-                        let fractional_part = self.read_number();
-                        tok = Token::Float(format!("{}.{}", integer_part, fractional_part));
-                        return TokenWrapper::new(tok, self.line, self.column);
+                        if is_digit(self.peek_char()) {
+                            let fractional_part = self.read_number();
+                            tok = Token::Float(format!("{}.{}", integer_part, fractional_part));
+                        } else {
+                            tok = Token::Float(format!("{}.0", integer_part));
+                        }
                     } else {
                         tok = Token::Int(integer_part);
-                        return TokenWrapper::new(tok, self.line, self.column);
                     }
                 } else {
                     tok = Token::Illegal
                 }
+                return TokenWrapper::new(tok, self.line, col);
             }
         }
-
         self.read_char();
         TokenWrapper::new(tok, self.line, self.column - 1)
     }
