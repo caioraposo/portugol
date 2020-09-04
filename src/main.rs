@@ -2,7 +2,7 @@ use portugol::lexer::Lexer;
 use portugol::token::Token;
 
 fn main() {
-    let input = include_str!("../algoritmo_202");
+    let input = include_str!("../para29");
 
     let mut lexer = Lexer::new(input.into());
 
