@@ -11,22 +11,42 @@ pub struct TokenWrapper {
 impl TokenWrapper {
     pub fn new(token: Token, line: usize, column: usize) -> TokenWrapper {
         let category = match &token {
-            Token::Assign | Token::Plus | Token::Minus | Token::Arrow |
-            Token::Bang | Token::Asterisk | Token::Slash |
-            Token::Lt | Token::Gt | Token::Eq | Token::NotEq => Category::Operator,
+            Token::Assign
+            | Token::Plus
+            | Token::Minus
+            | Token::Arrow
+            | Token::Bang
+            | Token::Asterisk
+            | Token::Slash
+            | Token::Mod
+            | Token::Lt
+            | Token::Gt
+            | Token::Eq
+            | Token::NotEq => Category::Operator,
 
-            Token::Integer | Token::Function | Token::True |
-            Token::False | Token::If | Token::Else |
-            Token::Return | Token::Print | Token::Program => Category::Keyword,
+            Token::Integer
+            | Token::Function
+            | Token::True
+            | Token::False
+            | Token::If
+            | Token::Else
+            | Token::Return
+            | Token::Print
+            | Token::Program
+            | Token::Read => Category::Keyword,
 
             Token::String(_) => Category::String,
             Token::Ident(_) => Category::Identifier,
             Token::Int(_) | Token::Float(_) => Category::Number,
 
             _ => Category::Others,
-
         };
-        TokenWrapper { token, category, line, column }
+        TokenWrapper {
+            token,
+            category,
+            line,
+            column,
+        }
     }
 }
 
@@ -59,6 +79,7 @@ pub enum Token {
     Asterisk,
     Slash,
     Arrow,
+    Mod,
 
     Lt,
     Gt,
@@ -86,12 +107,17 @@ pub enum Token {
     Return,
     Print,
     Program,
+    While,
+    Read,
 }
 
 impl fmt::Display for TokenWrapper {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{:?}, \"{}\", {}, {}]",
-            self.category, self.token, self.line, self.column)
+        write!(
+            f,
+            "[{:?}, \"{}\", {}, {}]",
+            self.category, self.token, self.line, self.column
+        )
     }
 }
 
@@ -114,6 +140,7 @@ impl fmt::Display for Token {
             Token::Bang => write!(f, "!"),
             Token::Asterisk => write!(f, "*"),
             Token::Slash => write!(f, "/"),
+            Token::Mod => write!(f, "%"),
 
             Token::Lt => write!(f, "<"),
             Token::Gt => write!(f, ">"),
@@ -141,6 +168,8 @@ impl fmt::Display for Token {
             Token::Return => write!(f, "retorne"),
             Token::Print => write!(f, "imprima"),
             Token::Program => write!(f, "prog"),
+            Token::While => write!(f, "enquanto"),
+            Token::Read => write!(f, "leia"),
         }
     }
 }
@@ -160,6 +189,8 @@ fn keyword_to_token(keyword: &str) -> Option<Token> {
         "senao" => Some(Token::Else),
         "retorne" => Some(Token::Return),
         "imprima" => Some(Token::Print),
+        "enquanto" => Some(Token::While),
+        "leia" => Some(Token::Read),
         _ => None,
     }
 }
