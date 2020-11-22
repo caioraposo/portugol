@@ -1,4 +1,4 @@
-use crate::token::{self, Token, TokenWrapper};
+use crate::token::{self, Token};
 use std::iter::Peekable;
 use std::mem;
 use std::str::Chars;
@@ -7,9 +7,6 @@ pub struct Lexer {
     input: String,
     // Current position in input (points to current char)
     position: usize,
-    // We can't use position for this
-    line: usize,
-    column: usize,
     // current char under examination
     ch: char,
     // Use `Chars` to support UTF-8.
@@ -25,8 +22,6 @@ impl Lexer {
             position: 0,
             ch: '\u{0}',
             chars,
-            line: 1,
-            column: 1,
         };
         lexer.read_char();
         lexer
@@ -36,7 +31,7 @@ impl Lexer {
         &self.input
     }
 
-    pub fn next_token(&mut self) -> TokenWrapper {
+    pub fn next_token(&mut self) -> Token {
         self.skip_whitespace();
 
         let tok: Token;
@@ -111,17 +106,14 @@ impl Lexer {
                 tok = Token::Rbracket;
             }
             '"' => {
-                let col = self.column;
                 tok = Token::String(self.read_string().to_string());
                 self.read_char();
-                return TokenWrapper::new(tok, self.line, col);
+                return tok;
             }
             '\u{0}' => {
                 tok = Token::Eof;
             }
             _ => {
-                // Get the column of the first character of the sequency
-                let col = self.column;
                 if is_letter(self.ch) {
                     let ident = self.read_identifier();
                     tok = token::lookup_ident(ident);
@@ -142,11 +134,11 @@ impl Lexer {
                 } else {
                     tok = Token::Illegal
                 }
-                return TokenWrapper::new(tok, self.line, col);
+                return tok;
             }
         }
         self.read_char();
-        TokenWrapper::new(tok, self.line, self.column - 1)
+        tok
     }
 
     fn read_identifier(&mut self) -> &str {
@@ -185,10 +177,6 @@ impl Lexer {
 
     fn skip_whitespace(&mut self) {
         while is_whitespace(self.ch) {
-            if self.ch == '\n' {
-                self.line += 1;
-                self.column = 0;
-            }
             self.read_char();
         }
     }
@@ -199,7 +187,6 @@ impl Lexer {
         self.position += if self.ch == '\u{0}' {
             0
         } else {
-            self.column += 1;
             self.ch.len_utf8()
         };
         self.ch = self.chars.next().unwrap_or('\u{0}');

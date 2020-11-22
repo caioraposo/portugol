@@ -1,23 +1,6 @@
 use std::fmt;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct TokenWrapper {
-    pub token: Token,
-    line: usize,
-    column: usize,
-}
-
-impl TokenWrapper {
-    pub fn new(token: Token, line: usize, column: usize) -> TokenWrapper {
-        TokenWrapper {
-            token,
-            line,
-            column,
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
 pub enum Token {
     Illegal,
     Eof,
@@ -66,12 +49,7 @@ pub enum Token {
     Program,
     While,
     Read,
-}
-
-impl fmt::Display for TokenWrapper {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[\"{}\", {}, {}]", self.token, self.line, self.column)
-    }
+    Let,
 }
 
 impl fmt::Display for Token {
@@ -113,6 +91,7 @@ impl fmt::Display for Token {
             Token::Rbracket => write!(f, "]"),
 
             Token::Function => write!(f, "funcao"),
+            Token::Let => write!(f, "let"),
             Token::Integer => write!(f, "int"),
             Token::True => write!(f, "VERDADEIRO"),
             Token::False => write!(f, "FALSO"),
@@ -144,6 +123,7 @@ fn keyword_to_token(keyword: &str) -> Option<Token> {
         "imprima" => Some(Token::Print),
         "enquanto" => Some(Token::While),
         "leia" => Some(Token::Read),
+        "let" => Some(Token::Let),
         _ => None,
     }
 }
