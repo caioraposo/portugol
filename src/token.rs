@@ -6,10 +6,10 @@ pub enum Token {
     Eof,
 
     // Identifiers + literals
-    Ident(String),  // add, foobar, x, y, ...
-    Int(String),    // 123456
-    Float(String),  // 123.456
-    String(String), // "hello"
+    Ident(String),         // add, foobar, x, y, ...
+    IntLiteral(String),    // 123456
+    FloatLiteral(String),  // 123.456
+    StringLiteral(String), // "hello"
 
     // Operators
     Assign,
@@ -37,7 +37,9 @@ pub enum Token {
     Lbracket,
     Rbracket,
 
-    Integer,
+    Int,
+    Float,
+    String,
     Function,
     True,
     False,
@@ -58,10 +60,10 @@ impl fmt::Display for Token {
             Token::Eof => write!(f, "EOF"),
 
             Token::Ident(ident) => write!(f, "{}", ident),
-            Token::Int(int) => write!(f, "{}", int),
-            Token::Float(float) => write!(f, "{}", float),
+            Token::IntLiteral(int) => write!(f, "{}", int),
+            Token::FloatLiteral(float) => write!(f, "{}", float),
             // TODO: Escape `"` in a string as `\"`...
-            Token::String(s) => write!(f, "\"{}\"", s),
+            Token::StringLiteral(s) => write!(f, "\"{}\"", s),
 
             Token::Assign => write!(f, "="),
             Token::Arrow => write!(f, "<-"),
@@ -90,7 +92,9 @@ impl fmt::Display for Token {
 
             Token::Function => write!(f, "funcao"),
             Token::Let => write!(f, "let"),
-            Token::Integer => write!(f, "int"),
+            Token::Int => write!(f, "int"),
+            Token::Float => write!(f, "real"),
+            Token::String => write!(f, "string"),
             Token::True => write!(f, "VERDADEIRO"),
             Token::False => write!(f, "FALSO"),
             Token::If => write!(f, "se"),
@@ -112,7 +116,6 @@ fn keyword_to_token(keyword: &str) -> Option<Token> {
     match keyword {
         "prog" => Some(Token::Program),
         "funcao" => Some(Token::Function),
-        "int" => Some(Token::Integer),
         "VERDADEIRO" => Some(Token::True),
         "FALSO" => Some(Token::False),
         "se" => Some(Token::If),
@@ -122,6 +125,9 @@ fn keyword_to_token(keyword: &str) -> Option<Token> {
         "enquanto" => Some(Token::While),
         "leia" => Some(Token::Read),
         "let" => Some(Token::Let),
+        "int" => Some(Token::Int),
+        "real" => Some(Token::Float),
+        "string" => Some(Token::String),
         _ => None,
     }
 }

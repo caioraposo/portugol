@@ -24,7 +24,7 @@ fn main() {
         panic!("Não compilado devido a erro(s) no parser");
     }
     // for debug
-    println!("{}", program);
+    //println!("{}", program);
 
     // For evaluator
     let env = Rc::new(RefCell::new(Environment::new()));
@@ -32,7 +32,8 @@ fn main() {
     match evaluator::eval(&program, Rc::clone(&env)) {
         Ok(_obj) => {}
         Err(err) => {
-            panic!("ERROR: {}", err);
+            println!("ERROR: {}", err);
+            std::process::exit(1);
         }
     };
 

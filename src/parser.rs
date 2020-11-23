@@ -20,6 +20,7 @@ type Result<T> = std::result::Result<T, ParserError>;
 
 #[derive(Debug)]
 pub enum ParserError {
+    ExpectedValue(Token),
     ExpectedPrefixToken(Token),
     ExpectedInfixToken(Token),
     ExpectedIdentifierToken(Token),
@@ -97,6 +98,9 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Statement> {
         match self.cur_token {
             Token::Let => self.parse_let_statement(),
+            Token::Int => self.parse_int_statement(),
+            Token::Float => self.parse_float_statement(),
+            Token::String => self.parse_string_statement(),
             Token::Return => self.parse_return_statement(),
             Token::Print => self.parse_print_statement(),
             Token::Ident(_) => {
@@ -133,6 +137,57 @@ impl Parser {
         self.next_token();
 
         Ok(Statement::Let(name, value))
+    }
+
+    fn parse_int_statement(&mut self) -> Result<Statement> {
+        // cur_token: int
+        let name;
+        if let Token::Ident(ident) = self.peek_token.clone() {
+            self.next_token();
+            name = ident;
+        } else {
+            return Err(ParserError::ExpectedIdentifierToken(
+                self.peek_token.clone(),
+            ));
+        }
+
+        self.expect_peek(Token::Semicolon, ParserError::ExpectedSemicolon)?;
+
+        Ok(Statement::Int(name))
+    }
+
+    fn parse_float_statement(&mut self) -> Result<Statement> {
+        // cur_token: float
+        let name;
+        if let Token::Ident(ident) = self.peek_token.clone() {
+            self.next_token();
+            name = ident;
+        } else {
+            return Err(ParserError::ExpectedIdentifierToken(
+                self.peek_token.clone(),
+            ));
+        }
+
+        self.expect_peek(Token::Semicolon, ParserError::ExpectedSemicolon)?;
+
+        Ok(Statement::Float(name))
+    }
+
+    fn parse_string_statement(&mut self) -> Result<Statement> {
+        // cur_token: string
+        let name;
+        if let Token::Ident(ident) = self.peek_token.clone() {
+            self.next_token();
+            name = ident;
+        } else {
+            return Err(ParserError::ExpectedIdentifierToken(
+                self.peek_token.clone(),
+            ));
+        }
+
+        self.expect_peek(Token::Semicolon, ParserError::ExpectedSemicolon)?;
+
+        Ok(Statement::String(name))
     }
 
     fn parse_return_statement(&mut self) -> Result<Statement> {
@@ -179,6 +234,32 @@ impl Parser {
         }
 
         expression.map(Statement::Expression)
+    }
+
+    fn parse_assign_statement(&mut self, left: Expression) -> Result<Statement> {
+        self.next_token();
+        let (precedence, _) = self.infix_token(&self.cur_token);
+        self.next_token();
+
+        let right;
+        if self.peek_token == Token::Semicolon {
+            right = match &self.cur_token {
+                Token::IntLiteral(_) => self.parse_integer_literal()?,
+                Token::FloatLiteral(_) => self.parse_float_literal()?,
+                Token::StringLiteral(_) => self.parse_string_literal()?,
+                Token::True | Token::False => self.parse_boolean()?,
+                Token::Ident(_) => self.parse_identifier()?,
+                _ => return Err(ParserError::ExpectedValue(self.cur_token.clone())),
+            };
+        } else {
+            right = self.parse_expression(precedence)?;
+        }
+        self.expect_peek(Token::Semicolon, ParserError::ExpectedSemicolon)?;
+
+        Ok(Statement::Expression(Expression::Assign(
+            Box::new(left),
+            Box::new(right),
+        )))
     }
 
     fn parse_block_statement(&mut self) -> Result<BlockStatement> {
@@ -448,36 +529,6 @@ impl Parser {
         let right = self.parse_expression(precedence)?;
 
         Ok(Expression::Infix(i, Box::new(left), Box::new(right)))
-    }
-
-    fn parse_assign_statement(&mut self, left: Expression) -> Result<Statement> {
-        self.next_token();
-        let (precedence, infix) = self.infix_token(&self.cur_token);
-        let i = infix.ok_or_else(|| ParserError::ExpectedInfixToken(self.cur_token.clone()))?;
-        self.next_token();
-
-        let mut right;
-        if self.peek_token == Token::Semicolon {
-            right = match &self.cur_token {
-                Token::IntLiteral(_) => self.parse_integer_literal()?,
-                Token::FloatLiteral(_) => self.parse_float_literal()?,
-                Token::StringLiteral(_) => self.parse_string_literal()?,
-                _ => panic!("ORROEUNTOEHNTH"),
-            };
-            println!("ENTROU {:?}", right);
-        } else {
-            right = self.parse_expression(precedence)?;
-        }
-        if self.peek_token != Token::Semicolon {
-            self.next_token();
-            return Err(ParserError::ExpectedSemicolon(self.cur_token.clone()));
-        }
-        self.next_token();
-
-        Ok(Statement::Expression(Expression::Assign(
-            Box::new(left),
-            Box::new(right),
-        )))
     }
 
     fn parse_call_expression(&mut self, function: Expression) -> Result<Expression> {

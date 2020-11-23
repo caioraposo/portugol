@@ -179,11 +179,16 @@ impl fmt::Display for EvalError {
                 right.type_name()
             ),
             EvalError::UnknownPrefixOperator(prefix, right) => {
-                write!(f, "unknown operator: {}{}", prefix, right.type_name())
+                write!(
+                    f,
+                    "unknown prefix operator: {}{}",
+                    prefix,
+                    right.type_name()
+                )
             }
             EvalError::UnknownInfixOperator(infix, left, right) => write!(
                 f,
-                "unknown operator: {} {} {}",
+                "unknown infix operator: {} {} {}",
                 left.type_name(),
                 infix,
                 right.type_name()

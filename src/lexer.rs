@@ -103,7 +103,7 @@ impl Lexer {
                 tok = Token::Rbracket;
             }
             '"' => {
-                tok = Token::String(self.read_string().to_string());
+                tok = Token::StringLiteral(self.read_string().to_string());
                 self.read_char();
                 return tok;
             }
@@ -121,12 +121,15 @@ impl Lexer {
                         self.read_char();
                         if is_digit(self.peek_char()) {
                             let fractional_part = self.read_number();
-                            tok = Token::Float(format!("{}.{}", integer_part, fractional_part));
+                            tok = Token::FloatLiteral(format!(
+                                "{}.{}",
+                                integer_part, fractional_part
+                            ));
                         } else {
-                            tok = Token::Float(format!("{}.0", integer_part));
+                            tok = Token::FloatLiteral(format!("{}.0", integer_part));
                         }
                     } else {
-                        tok = Token::Int(integer_part);
+                        tok = Token::IntLiteral(integer_part);
                     }
                 } else {
                     tok = Token::Illegal

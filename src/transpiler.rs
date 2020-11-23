@@ -52,6 +52,7 @@ impl Transpiler {
                 }
                 _ => {}
             },
+            Statement::Int(_) | Statement::Float(_) | Statement::String(_) => {}
         }
     }
 }

@@ -54,11 +54,29 @@ fn eval_statement(statement: &Statement, env: Rc<RefCell<Environment>>) -> EvalR
             env.borrow_mut().set(name, result.clone());
             Ok(result)
         }
+        Statement::Int(name) => {
+            let result = Object::Integer(0);
+            env.borrow_mut().set(name, result.clone());
+            Ok(result)
+        }
+        Statement::Float(name) => {
+            let result = Object::Float(0.0);
+            env.borrow_mut().set(name, result.clone());
+            Ok(result)
+        }
+        Statement::String(name) => {
+            let result = Object::String(String::new());
+            env.borrow_mut().set(name, result.clone());
+            Ok(result)
+        }
     }
 }
 
 fn eval_expression(expression: &Expression, env: Rc<RefCell<Environment>>) -> EvalResult {
     match expression {
+        Expression::Int => Ok(Object::Integer(0)),
+        Expression::Float => Ok(Object::Float(0.0)),
+        Expression::String => Ok(Object::String(String::new())),
         Expression::IntegerLiteral(value) => Ok(Object::Integer(*value)),
         Expression::FloatLiteral(value) => Ok(Object::Float(*value)),
         Expression::StringLiteral(s) => Ok(Object::String(s.to_string())),
@@ -268,6 +286,7 @@ fn eval_string_infix_expression(infix: &Infix, left: &str, right: &str) -> EvalR
         // `concat()` seems to be kind of fast...
         // https://github.com/hoodie/concatenation_benchmarks-rs
         Infix::Plus => Ok(Object::String([left, right].concat())),
+        Infix::Assign => Ok(Object::String(right.to_string())),
         _ => Err(EvalError::UnknownInfixOperator(
             infix.clone(),
             Object::String(left.to_string()),

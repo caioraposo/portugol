@@ -31,6 +31,9 @@ impl fmt::Display for BlockStatement {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Statement {
     Let(String, Expression),
+    Int(String),
+    Float(String),
+    String(String),
     Return(Option<Expression>),
     Print(Option<Expression>),
     Expression(Expression),
@@ -40,6 +43,9 @@ impl fmt::Display for Statement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Statement::Let(ident, value) => write!(f, "let {} = {};", ident, value),
+            Statement::Int(ident) => write!(f, "int {};", ident),
+            Statement::Float(ident) => write!(f, "float {};", ident),
+            Statement::String(ident) => write!(f, "string {};", ident),
             Statement::Return(None) => write!(f, "return;"),
             Statement::Return(Some(exp)) => write!(f, "return {};", exp),
             Statement::Print(None) => write!(f, "print;"),
@@ -56,6 +62,9 @@ pub enum Expression {
     FloatLiteral(f64),
     StringLiteral(String),
     Boolean(bool),
+    Int,
+    Float,
+    String,
     Array(Vec<Expression>),
     Hash(Vec<(Expression, Expression)>),
     Index(Box<Expression>, Box<Expression>),
@@ -76,6 +85,9 @@ impl fmt::Display for Expression {
             Expression::FloatLiteral(value) => write!(f, "{}", value),
             // TODO: Escape `"`
             Expression::StringLiteral(s) => write!(f, "\"{}\"", s),
+            Expression::Int => write!(f, "int"),
+            Expression::Float => write!(f, "float"),
+            Expression::String => write!(f, "string"),
             Expression::Assign(left, right) => write!(f, "{} = {}", left, right),
             Expression::Boolean(value) => write!(f, "{}", value),
             Expression::Array(values) => write!(f, "[{}]", comma_separated(values)),
