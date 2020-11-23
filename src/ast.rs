@@ -126,7 +126,6 @@ pub enum Infix {
     Minus,
     Asterisk,
     Slash,
-    Mod,
 }
 
 impl fmt::Display for Infix {
@@ -140,7 +139,6 @@ impl fmt::Display for Infix {
             Infix::Minus => write!(f, "-"),
             Infix::Asterisk => write!(f, "*"),
             Infix::Slash => write!(f, "/"),
-            Infix::Mod => write!(f, "%"),
         }
     }
 }

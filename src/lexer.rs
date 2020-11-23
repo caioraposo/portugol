@@ -79,9 +79,6 @@ impl Lexer {
             '/' => {
                 tok = Token::Slash;
             }
-            '%' => {
-                tok = Token::Mod;
-            }
             '<' => {
                 if self.peek_char() == '-' {
                     self.read_char();
