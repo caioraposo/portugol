@@ -73,6 +73,9 @@ fn eval_expression(expression: &Expression, env: Rc<RefCell<Environment>>) -> Ev
         Expression::If(condition, consequence, alternative) => {
             eval_if_expression(condition.as_ref(), consequence, alternative.as_ref(), env)
         }
+        Expression::Assign(ident, value) => {
+            eval_infix_expression(&Infix::Assign, ident, value, env)
+        }
         Expression::While(condition, consequence) => {
             eval_while_expression(condition.as_ref(), consequence, env)
         }
@@ -240,6 +243,7 @@ fn eval_integer_infix_expression(infix: &Infix, left: i64, right: i64) -> EvalRe
         Infix::Minus => Object::Integer(left - right),
         Infix::Asterisk => Object::Integer(left * right),
         Infix::Slash => Object::Integer(left / right),
+        Infix::Assign => Object::Integer(right),
     })
 }
 
@@ -255,6 +259,7 @@ fn eval_float_infix_expression(infix: &Infix, left: f64, right: f64) -> EvalResu
         Infix::Minus => Object::Float(left - right),
         Infix::Asterisk => Object::Float(left * right),
         Infix::Slash => Object::Float(left / right),
+        Infix::Assign => Object::Float(right),
     })
 }
 

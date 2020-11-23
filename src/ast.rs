@@ -63,6 +63,7 @@ pub enum Expression {
     Infix(Infix, Box<Expression>, Box<Expression>),
     If(Box<Expression>, BlockStatement, Option<BlockStatement>),
     While(Box<Expression>, BlockStatement),
+    Assign(Box<Expression>, Box<Expression>),
     FunctionLiteral(Vec<String>, BlockStatement),
     Call(Box<Expression>, Vec<Expression>),
 }
@@ -75,6 +76,7 @@ impl fmt::Display for Expression {
             Expression::FloatLiteral(value) => write!(f, "{}", value),
             // TODO: Escape `"`
             Expression::StringLiteral(s) => write!(f, "\"{}\"", s),
+            Expression::Assign(left, right) => write!(f, "{} = {}", left, right),
             Expression::Boolean(value) => write!(f, "{}", value),
             Expression::Array(values) => write!(f, "[{}]", comma_separated(values)),
             Expression::Hash(pairs) => {
@@ -126,6 +128,7 @@ pub enum Infix {
     Minus,
     Asterisk,
     Slash,
+    Assign,
 }
 
 impl fmt::Display for Infix {
@@ -139,6 +142,7 @@ impl fmt::Display for Infix {
             Infix::Minus => write!(f, "-"),
             Infix::Asterisk => write!(f, "*"),
             Infix::Slash => write!(f, "/"),
+            Infix::Assign => write!(f, "="),
         }
     }
 }

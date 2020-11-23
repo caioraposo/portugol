@@ -23,6 +23,8 @@ fn main() {
         }
         panic!("Não compilado devido a erro(s) no parser");
     }
+    // for debug
+    println!("{}", program);
 
     // For evaluator
     let env = Rc::new(RefCell::new(Environment::new()));

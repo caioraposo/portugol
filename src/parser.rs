@@ -5,6 +5,7 @@ use std::mem;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub enum Precedence {
+    Assign,
     Lowest,
     Equals,      // ==
     LessGreater, // > or <
@@ -98,6 +99,9 @@ impl Parser {
             Token::Let => self.parse_let_statement(),
             Token::Return => self.parse_return_statement(),
             Token::Print => self.parse_print_statement(),
+            Token::Ident(_) => {
+                self.parse_assign_statement(Expression::Identifier(self.cur_token.to_string()))
+            }
             _ => self.parse_expression_statement(),
         }
     }
@@ -122,10 +126,11 @@ impl Parser {
         let value = self.parse_expression(Precedence::Lowest)?;
         // cur_token: the last token of the value expression
 
-        if self.peek_token == Token::Semicolon {
+        if self.peek_token != Token::Semicolon {
             self.next_token();
-            // cur_token: ;
+            return Err(ParserError::ExpectedSemicolon(self.cur_token.clone()));
         }
+        self.next_token();
 
         Ok(Statement::Let(name, value))
     }
@@ -194,7 +199,6 @@ impl Parser {
             .prefix_parse_fn()
             .ok_or_else(|| ParserError::ExpectedPrefixToken(self.cur_token.clone()))?;
         let mut left_exp = prefix(self)?;
-        // cur_token: the last token of the left expression
 
         while self.peek_token != Token::Semicolon
             && precedence < self.infix_token(&self.peek_token).0
@@ -215,9 +219,9 @@ impl Parser {
     fn prefix_parse_fn(&self) -> Option<PrefixParseFn> {
         match &self.cur_token {
             Token::Ident(_) => Some(Parser::parse_identifier),
-            Token::Int(_) => Some(Parser::parse_integer_literal),
-            Token::Float(_) => Some(Parser::parse_float_literal),
-            Token::String(_) => Some(Parser::parse_string_literal),
+            Token::IntLiteral(_) => Some(Parser::parse_integer_literal),
+            Token::FloatLiteral(_) => Some(Parser::parse_float_literal),
+            Token::StringLiteral(_) => Some(Parser::parse_string_literal),
             Token::True => Some(Parser::parse_boolean),
             Token::False => Some(Parser::parse_boolean),
             Token::Bang => Some(Parser::parse_prefix_expression),
@@ -245,7 +249,7 @@ impl Parser {
     }
 
     fn parse_integer_literal(&mut self) -> Result<Expression> {
-        if let Token::Int(int) = &self.cur_token {
+        if let Token::IntLiteral(int) = &self.cur_token {
             match int.parse() {
                 Ok(value) => Ok(Expression::IntegerLiteral(value)),
                 Err(_) => Err(ParserError::ParseInt(int.to_string())),
@@ -256,7 +260,7 @@ impl Parser {
     }
 
     fn parse_float_literal(&mut self) -> Result<Expression> {
-        if let Token::Float(float) = &self.cur_token {
+        if let Token::FloatLiteral(float) = &self.cur_token {
             match float.parse() {
                 Ok(value) => Ok(Expression::FloatLiteral(value)),
                 Err(_) => Err(ParserError::ParseFloat(float.to_string())),
@@ -267,7 +271,7 @@ impl Parser {
     }
 
     fn parse_string_literal(&mut self) -> Result<Expression> {
-        if let Token::String(s) = &self.cur_token {
+        if let Token::StringLiteral(s) = &self.cur_token {
             Ok(Expression::StringLiteral(s.to_string()))
         } else {
             Err(ParserError::ExpectedStringToken(self.cur_token.clone()))
@@ -432,6 +436,7 @@ impl Parser {
             Token::Gt => Some(Parser::parse_infix_expression),
             Token::Lparen => Some(Parser::parse_call_expression),
             Token::Lbracket => Some(Parser::parse_index_expression),
+            Token::Assign => Some(Parser::parse_infix_expression),
             _ => None,
         }
     }
@@ -443,6 +448,36 @@ impl Parser {
         let right = self.parse_expression(precedence)?;
 
         Ok(Expression::Infix(i, Box::new(left), Box::new(right)))
+    }
+
+    fn parse_assign_statement(&mut self, left: Expression) -> Result<Statement> {
+        self.next_token();
+        let (precedence, infix) = self.infix_token(&self.cur_token);
+        let i = infix.ok_or_else(|| ParserError::ExpectedInfixToken(self.cur_token.clone()))?;
+        self.next_token();
+
+        let mut right;
+        if self.peek_token == Token::Semicolon {
+            right = match &self.cur_token {
+                Token::IntLiteral(_) => self.parse_integer_literal()?,
+                Token::FloatLiteral(_) => self.parse_float_literal()?,
+                Token::StringLiteral(_) => self.parse_string_literal()?,
+                _ => panic!("ORROEUNTOEHNTH"),
+            };
+            println!("ENTROU {:?}", right);
+        } else {
+            right = self.parse_expression(precedence)?;
+        }
+        if self.peek_token != Token::Semicolon {
+            self.next_token();
+            return Err(ParserError::ExpectedSemicolon(self.cur_token.clone()));
+        }
+        self.next_token();
+
+        Ok(Statement::Expression(Expression::Assign(
+            Box::new(left),
+            Box::new(right),
+        )))
     }
 
     fn parse_call_expression(&mut self, function: Expression) -> Result<Expression> {
@@ -543,6 +578,7 @@ impl Parser {
 
     fn infix_token(&self, token: &Token) -> (Precedence, Option<Infix>) {
         match token {
+            Token::Assign => (Precedence::Assign, Some(Infix::Assign)),
             Token::Eq => (Precedence::Equals, Some(Infix::Eq)),
             Token::NotEq => (Precedence::Equals, Some(Infix::NotEq)),
             Token::Lt => (Precedence::LessGreater, Some(Infix::Lt)),

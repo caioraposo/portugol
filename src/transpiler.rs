@@ -31,6 +31,7 @@ impl Transpiler {
             Statement::Print(None) => println!("{}print()", spaces),
             Statement::Print(Some(exp)) => println!("{}print({})", spaces, exp),
             Statement::Expression(exp) => match exp {
+                Expression::Assign(name, value) => println!("{}{} = {}", spaces, name, value),
                 Expression::If(condition, consequence, alternative) => {
                     println!("{}if {}:", spaces, condition);
                     for cons in &consequence.statements {
@@ -41,6 +42,12 @@ impl Transpiler {
                         for alt in &alts.statements {
                             self.parse_statement(alt.clone(), indent_level + 1);
                         }
+                    }
+                }
+                Expression::While(condition, consequence) => {
+                    println!("{}while {}:", spaces, condition);
+                    for cons in &consequence.statements {
+                        self.parse_statement(cons.clone(), indent_level + 1);
                     }
                 }
                 _ => {}
