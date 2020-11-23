@@ -100,7 +100,7 @@ fn eval_expression(expression: &Expression, env: Rc<RefCell<Environment>>) -> Ev
         Expression::Identifier(name) => eval_identifier(name, env),
         Expression::FunctionLiteral(params, body) => {
             // TODO: Pass a mutable reference of env...
-            Ok(Object::Function(params.to_vec(), body.clone(), env.clone()))
+            Ok(Object::Function(params.to_vec(), body.clone(), env))
         }
         Expression::Call(func, args) => {
             let function = eval_expression(func, Rc::clone(&env))?;
@@ -327,7 +327,7 @@ fn eval_while_expression(
 
 fn eval_identifier(name: &str, env: Rc<RefCell<Environment>>) -> EvalResult {
     if let Some(obj) = env.borrow().get(name) {
-        return Ok(obj.clone());
+        return Ok(obj);
     }
     if let Some(obj) = builtin::lookup(name) {
         return Ok(obj);

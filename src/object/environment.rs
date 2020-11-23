@@ -24,10 +24,7 @@ impl Environment {
     pub fn get(&self, name: &str) -> Option<Object> {
         match self.store.get(name) {
             Some(value) => Some(value.clone()),
-            None => self
-                .outer
-                .as_ref()
-                .and_then(|o| o.borrow().get(name).clone()),
+            None => self.outer.as_ref().and_then(|o| o.borrow().get(name)),
         }
     }
 
