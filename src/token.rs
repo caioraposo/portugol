@@ -19,7 +19,6 @@ pub enum Token {
     Asterisk,
     Slash,
     Arrow,
-    Mod,
 
     Lt,
     Gt,
@@ -71,7 +70,6 @@ impl fmt::Display for Token {
             Token::Bang => write!(f, "!"),
             Token::Asterisk => write!(f, "*"),
             Token::Slash => write!(f, "/"),
-            Token::Mod => write!(f, "%"),
 
             Token::Lt => write!(f, "<"),
             Token::Gt => write!(f, ">"),
