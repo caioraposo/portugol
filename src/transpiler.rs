@@ -30,6 +30,7 @@ impl Transpiler {
             Statement::Return(Some(exp)) => println!("{}return {}", spaces, exp),
             Statement::Print(None) => println!("{}print()", spaces),
             Statement::Print(Some(exp)) => println!("{}print({})", spaces, exp),
+            Statement::Read(name) => println!("{}{} = input()", spaces, name),
             Statement::Expression(exp) => match exp {
                 Expression::Assign(name, value) => println!("{}{} = {}", spaces, name, value),
                 Expression::If(condition, consequence, alternative) => {

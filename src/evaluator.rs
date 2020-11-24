@@ -48,6 +48,7 @@ fn eval_statement(statement: &Statement, env: Rc<RefCell<Environment>>) -> EvalR
             Ok(Object::Print(Box::new(result)))
         }
         Statement::Print(None) => Ok(Object::Return(Box::new(Object::Null))),
+        Statement::Read(name) => eval_identifier(name, env),
         Statement::Let(name, exp) => {
             let result = eval_expression(exp, Rc::clone(&env))?;
             // TODO: Is this `clone()` the right way to do?
@@ -287,6 +288,7 @@ fn eval_string_infix_expression(infix: &Infix, left: &str, right: &str) -> EvalR
         // https://github.com/hoodie/concatenation_benchmarks-rs
         Infix::Plus => Ok(Object::String([left, right].concat())),
         Infix::Assign => Ok(Object::String(right.to_string())),
+        Infix::Eq => Ok(Object::Boolean(left.eq(right))),
         _ => Err(EvalError::UnknownInfixOperator(
             infix.clone(),
             Object::String(left.to_string()),

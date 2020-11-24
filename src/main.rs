@@ -6,6 +6,7 @@ use portugol::transpiler::Transpiler;
 use std::cell::RefCell;
 use std::env;
 use std::fs;
+use std::process;
 use std::rc::Rc;
 
 fn main() {
@@ -16,12 +17,10 @@ fn main() {
 
     let program = parser.parse_program();
     if !parser.errors().is_empty() {
-        println!("Rapaaaaiz! Olha só quanto erro!");
-        println!(" erros de parse:");
-        for error in parser.errors() {
-            println!("\t{:?}", error);
-        }
-        panic!("Não compilado devido a erro(s) no parser");
+        println!("ERROR: foi encontrado o seguinte erro de parse:");
+        let error = parser.errors().first();
+        println!("\t{:?}", error);
+        process::exit(1);
     }
     // for debug
     //println!("{}", program);
@@ -32,8 +31,8 @@ fn main() {
     match evaluator::eval(&program, Rc::clone(&env)) {
         Ok(_obj) => {}
         Err(err) => {
-            println!("ERROR: {}", err);
-            std::process::exit(1);
+            println!("ERRO SEMÂNTICO: {}", err);
+            process::exit(1);
         }
     };
 

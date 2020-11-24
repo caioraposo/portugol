@@ -103,6 +103,7 @@ impl Parser {
             Token::String => self.parse_string_statement(),
             Token::Return => self.parse_return_statement(),
             Token::Print => self.parse_print_statement(),
+            Token::Read => self.parse_read_statement(),
             Token::Ident(_) => {
                 self.parse_assign_statement(Expression::Identifier(self.cur_token.to_string()))
             }
@@ -224,6 +225,22 @@ impl Parser {
         }
 
         Ok(Statement::Print(Some(expression)))
+    }
+
+    fn parse_read_statement(&mut self) -> Result<Statement> {
+        // cur_token: read
+        let name;
+        if let Token::Ident(ident) = self.peek_token.clone() {
+            self.next_token();
+            name = ident;
+        } else {
+            return Err(ParserError::ExpectedIdentifierToken(
+                self.peek_token.clone(),
+            ));
+        }
+        self.expect_peek(Token::Semicolon, ParserError::ExpectedSemicolon)?;
+
+        Ok(Statement::Read(name))
     }
 
     fn parse_expression_statement(&mut self) -> Result<Statement> {

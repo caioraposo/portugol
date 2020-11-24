@@ -36,6 +36,7 @@ pub enum Statement {
     String(String),
     Return(Option<Expression>),
     Print(Option<Expression>),
+    Read(String),
     Expression(Expression),
 }
 
@@ -50,6 +51,7 @@ impl fmt::Display for Statement {
             Statement::Return(Some(exp)) => write!(f, "return {};", exp),
             Statement::Print(None) => write!(f, "print;"),
             Statement::Print(Some(exp)) => write!(f, "print {};", exp),
+            Statement::Read(ident) => write!(f, "read {};", ident),
             Statement::Expression(exp) => write!(f, "{};", exp),
         }
     }
@@ -89,7 +91,8 @@ impl fmt::Display for Expression {
             Expression::Float => write!(f, "float"),
             Expression::String => write!(f, "string"),
             Expression::Assign(left, right) => write!(f, "{} = {}", left, right),
-            Expression::Boolean(value) => write!(f, "{}", value),
+            Expression::Boolean(true) => write!(f, "True"),
+            Expression::Boolean(false) => write!(f, "False"),
             Expression::Array(values) => write!(f, "[{}]", comma_separated(values)),
             Expression::Hash(pairs) => {
                 let items = pairs
