@@ -1,5 +1,6 @@
 prog para29
-    int i, num;
+    int i;
+    int num;
     imprima "\nEntre com um numero maior do que 15: ";
     leia num;
     se(num>=15)
