@@ -1,5 +1,5 @@
 <p>
-    <img src="docs/img/logo.png" height="200px">
+    <img src="doc/img/logo.png" height="200px">
 
 </p>
 
@@ -18,6 +18,6 @@ It expects an input file with the Portugol source code, and outputs the Python c
 cargo run --release -- <filename>
 ```
 
-Based on the compiler from [Writing a Compiler in Go](compilerbook.com).
+Based on the compiler from [Writing a Compiler in Go](compilerbook.com).<br>
 Thank you, Shuhei Kagawa.
 see: https://shuheikagawa.com/blog/2019/10/06/interpreter-and-compiler-in-rust/
