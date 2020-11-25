@@ -119,7 +119,7 @@ impl Lexer {
                     let integer_part = self.read_number().to_string();
                     if self.ch == '.' {
                         self.read_char();
-                        if is_digit(self.peek_char()) {
+                        if is_digit(self.ch) {
                             let fractional_part = self.read_number();
                             tok = Token::FloatLiteral(format!(
                                 "{}.{}",
