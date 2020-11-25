@@ -1,5 +1,5 @@
 [package]
-name = "portugol"
+name = "yapc"
 version = "0.1.0"
 authors = ["Caio Raposo <caioraposo@protonmail.com>"]
 edition = "2018"

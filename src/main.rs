@@ -1,8 +1,9 @@
-use portugol::evaluator;
-use portugol::lexer::Lexer;
-use portugol::object::Environment;
-use portugol::parser::Parser;
-use portugol::transpiler::Transpiler;
+use yapc::evaluator;
+use yapc::lexer::Lexer;
+use yapc::object::Environment;
+use yapc::parser::Parser;
+use yapc::transpiler::Transpiler;
+//use yapc::token::Token;
 use std::cell::RefCell;
 use std::env;
 use std::fs;
@@ -12,6 +13,16 @@ use std::rc::Rc;
 fn main() {
     let filename = env::args().nth(1).expect("Arquivo de input não inserido");
     let contents = fs::read_to_string(filename).expect("Erro ao ler arquivo");
+
+    /* Debug lexer
+    let mut lexer = Lexer::new(contents);
+    while let token = lexer.next_token() {
+        if token == Token::Eof {
+            break;
+        }
+        println!("{:?}", token);
+    }
+    */
 
     let mut parser = Parser::new(Lexer::new(contents));
 
